@@ -31,13 +31,6 @@ This task will assess your knowledge of:
 - Any SQL or NoSQL database
 - Good relational design if using SQL (tables, foreign keys)
 - Track products, shops, purchases, and stock changes
-
----
-
-## 🔗 Integration Expectations
-- **QR code** should encode enough data for the customer app to identify the product (ID, API link, etc.)
-- **Shop and Customer roles within a single app**
-
 ---
 
 ## 🚀 Technical Expectations
@@ -48,7 +41,8 @@ This task will assess your knowledge of:
 ---
 
 ## 🚫 Limits
-- The task is open-ended, do what you can and think is important. If you value functionality more cover more edge cases. If you value testing more add coverage ...
+- The task is open-ended, do what you can and think is important. If you value functionality more, cover more edge cases. If you value testing more, add more coverage ...
+  **Decision you made will be discussed during the interview process**
 
 ---
 
