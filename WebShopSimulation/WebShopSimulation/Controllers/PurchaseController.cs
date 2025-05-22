@@ -16,7 +16,7 @@ namespace WebShopSimulation.Controllers
         }
 
         // POST: api/purchase
-        [HttpGet]
+        [HttpPost]
         public async Task<IActionResult> MakePurchase(PurchaseDto dto)
         {
             var customer = await _context.Customers.FindAsync(dto.CustomerId);
@@ -61,15 +61,24 @@ namespace WebShopSimulation.Controllers
 
         // GET: api/purchase/shop/5
         [HttpGet("shop/{shopId}")]
-        public async Task<IActionResult> GetPurchasesForShop(int shopId)
+        public async Task<ActionResult<IEnumerable<PurchaseOutputDto>>> GetPurchasesForShop(int shopId)
         {
             var purchases = await _context.Purchases
                 .Include(p => p.Product)
-                .ThenInclude(p => p.Shop)
+                .Include(p => p.Customer)
                 .Where(p => p.Product.ShopId == shopId)
                 .ToListAsync();
 
-            return Ok(purchases);
+            var result = purchases.Select(p => new PurchaseOutputDto
+            {
+                Id = p.Id,
+                Quantity = p.Quantity,
+                PurchasedAt = p.PurchasedAt,
+                ProductName = p.Product.Name,
+                CustomerName = p.Customer.Name,
+            }).ToList();
+
+            return Ok(result);
         }
 
         // GET: api/purchase/shop/5/revenue
