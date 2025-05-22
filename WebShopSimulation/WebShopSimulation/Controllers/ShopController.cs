@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using WebShopSimulation.DTOs;
 
 namespace WebShopSimulation.Controllers
 {
@@ -15,29 +16,81 @@ namespace WebShopSimulation.Controllers
 
         // GET: api/shop
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Shop>>> GetShops()
+        public async Task<ActionResult<IEnumerable<ShopOutputDto>>> GetShops()
         {
-            return await _context.Shops.Include(s => s.Products).ToListAsync();
+            var shops = await _context.Shops.Include(s => s.Products).ThenInclude(p => p.Purchases).ThenInclude(pu => pu.Customer).ToListAsync();
+
+            var shopDtos = shops.Select(s => new ShopOutputDto
+            {
+                Id = s.Id,
+                Name = s.Name,
+                Products = s.Products.Select(p => new ProductOutputDto
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Price = p.Price,
+                    Stock = p.Stock,
+                    Purchases = p.Purchases.Select(pu => new PurchaseOutputDto
+                    {
+                        Id = pu.Id,
+                        Quantity = pu.Quantity,
+                        PurchasedAt = pu.PurchasedAt,
+                        ProductName = p.Name,
+                        CustomerName = pu.Customer.Name
+                    }).ToList()
+                }).ToList()
+            }).ToList();
+
+            return Ok(shopDtos);
         }
 
         // GET: api/shop/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Shop>> GetShop(int id)
+        public async Task<ActionResult<ShopOutputDto>> GetShop(int id)
         {
-            var shop = await _context.Shops.Include(s => s.Products).FirstOrDefaultAsync(s => s.Id == id);
+            var shop = await _context.Shops.Include(s => s.Products).ThenInclude(p => p.Purchases).ThenInclude(pu => pu.Customer).FirstOrDefaultAsync(s => s.Id == id);
+            
             if (shop == null)
             {
                 return NotFound();
             }
-            return shop;
+
+            var shopDto = new ShopOutputDto
+            {
+                Id = shop.Id,
+                Name = shop.Name,
+                Products = shop.Products.Select(p => new ProductOutputDto
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Price = p.Price,
+                    Stock = p.Stock,
+                    Purchases = p.Purchases.Select(pu => new PurchaseOutputDto
+                    {
+                        Id = pu.Id,
+                        Quantity = pu.Quantity,
+                        PurchasedAt = pu.PurchasedAt,
+                        ProductName = p.Name,
+                        CustomerName = pu.Customer.Name
+                    }).ToList()
+                }).ToList()
+            };
+
+            return Ok(shopDto);
         }
 
         // POST: api/shop
         [HttpPost]
-        public async Task<ActionResult<Shop>> CreateShop(Shop shop)
+        public async Task<ActionResult<Shop>> CreateShop(CreateShopDto dto)
         {
+            var shop = new Shop
+            {
+                Name = dto.Name
+            };
+
             _context.Shops.Add(shop);
             await _context.SaveChangesAsync();
+
             return CreatedAtAction(nameof(GetShop), new { id = shop.Id }, shop);
         }
 

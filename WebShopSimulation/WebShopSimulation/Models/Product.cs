@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization;
 
 public class Product
 {
@@ -10,6 +11,8 @@ public class Product
     public int Stock { get; set; }
 
     public int ShopId { get; set; }
+
+    [JsonIgnore]
     public Shop Shop { get; set; }
 
     public ICollection<Purchase> Purchases { get; set; } = new List<Purchase>();
