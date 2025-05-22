@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using WebShopSimulation.DTOs;
 
 namespace WebShopSimulation.Controllers
 {
@@ -35,18 +36,28 @@ namespace WebShopSimulation.Controllers
 
         // POST: api/product
         [HttpPost]
-        public async Task<ActionResult<Product>> CreateProduct(Product product)
+        public async Task<ActionResult<Product>> CreateProduct(CreateProductDto dto)
         {
-            var shopExists = await _context.Shops.AnyAsync(s => s.Id == product.ShopId);
+            var shopExists = await _context.Shops.AnyAsync(s => s.Id == dto.ShopId);
             if (!shopExists)
             {
                 return BadRequest("Shop does not exist.");
             }
 
+            var product = new Product
+            {
+                Name = dto.Name,
+                Price = dto.Price,
+                Stock = dto.Stock,
+                ShopId = dto.ShopId
+            };
+
             _context.Products.Add(product);
             await _context.SaveChangesAsync();
+
             return CreatedAtAction(nameof(GetProduct), new { id = product.Id }, product);
         }
+
 
         // PUT: api/product/5
         [HttpPut("{id}")]
