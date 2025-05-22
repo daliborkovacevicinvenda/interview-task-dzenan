@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using WebShopSimulation.Models;
 
 public class ApplicationDbContext : DbContext
 {
